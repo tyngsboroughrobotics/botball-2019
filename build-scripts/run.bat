@@ -1,0 +1,2 @@
+:: Assumes that the file has already been built. `cd`s into the outfile directory and runs the outfile.
+ssh -t root@192.168.124.1 "cd /home/root/Documents/KISS/Default\ User/botball-2019 && ./botball_user_program"

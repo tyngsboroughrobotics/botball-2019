@@ -1,0 +1,49 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Initialize",
+            "type": "shell",
+            "command": "build-scripts\\initialize.bat",
+            "problemMatcher": []
+        },
+        {
+            "label": "Copy Files",
+            "type": "shell",
+            "command": "build-scripts\\copy-files.bat",
+            "problemMatcher": []
+        },
+        {
+            "label": "Initialize & Copy Files",
+            "type": "shell",
+            "command": "build-scripts\\initialize.bat && build-scripts\\copy-files.bat",
+            "problemMatcher": []
+        },
+        {
+            "label": "Build",
+            "type": "shell",
+            "command": "build-scripts\\build.bat",
+            "problemMatcher": []
+        },
+        {
+            "label": "Copy Files & Build",
+            "type": "shell",
+            "command": "build-scripts\\copy-files.bat && build-scripts\\build.bat",
+            "problemMatcher": []
+        },
+        {
+            "label": "Run",
+            "type": "shell",
+            "command": "build-scripts\\run.bat",
+            "problemMatcher": []
+        },
+        {
+            "label": "Build & Run",
+            "type": "shell",
+            "command": "build-scripts\\copy-files.bat && build-scripts\\build-run",
+            "problemMatcher": []
+        }
+    ]
+}
