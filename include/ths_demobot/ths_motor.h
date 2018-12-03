@@ -12,7 +12,7 @@ namespace ths_demobot {
     const double THS_BASIC_MOTOR_MAX_TIME = 5.0;
 
     class ths_basic_motor {
-        public:
+    public:
         /**
          * The GPIO port of the motor. See Wallaby documentation for details.
          */
@@ -32,16 +32,31 @@ namespace ths_demobot {
     };
 
     class ths_motor: ths_basic_motor {
-        public:
+    public:
         /**
          * Moves the motor forward for the specified amount of time in seconds.
          */
-        void move(double time);
+		void move(ths_motor_direction direction, double time);
     };
 
+	const int THS_SERVO_MIN_POSITION = 100;
+	const int THS_SERVO_MAX_POSITION = 1947;
+
     class ths_servo: ths_basic_motor {
-        public:
-        void set_position(int position);
+    public:
+		
+		/**
+		 * Sets the servo position. Specify a value between 0.0 and 1.0,
+		 * where 0.0 is the leftmost position and 1.0 is the rightmost.
+		 */
+        void set_position(double position);
+
+		int position();
+
+		void disable();
+
+	private:
+		int get_ticks(int distance);
     };
 }
 

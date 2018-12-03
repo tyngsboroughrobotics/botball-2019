@@ -3,6 +3,6 @@
 
 // Place all other headers we create here so they can easily be imported via one file.
 
-#include "ths_demobot/ths_motor.h"
+#include <ths_demobot/ths_motor.h>
 
 #endif
