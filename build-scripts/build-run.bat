@@ -1,2 +1,2 @@
-:: Build with gcc and run the outfile
-ssh -t root@192.168.124.1 "g++ -std=c++11 -Wall -I/home/root/Documents/KISS/src/botball-2019/include -o /home/root/Documents/KISS/Default\ User/botball-2019/botball_user_program /home/root/Documents/KISS/src/botball-2019/src/main.cpp && cd /home/root/Documents/KISS/Default\ User/botball-2019 && ./botball_user_program"
+:: Run the program
+ssh -t root@192.168.124.1 "python /home/root/Documents/KISS/src/botball-2019/__main__.py"
