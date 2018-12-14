@@ -87,7 +87,7 @@ class servo(base_motor):
 
     pos = self.position()
     while pos < mapped_position:
-      servos.set_servo_position(self.port, pos)
+      servos.set_servo_position(self.port, int(pos))
       msleep(ticks / 1000)
       pos += 1
     
