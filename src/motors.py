@@ -68,7 +68,7 @@ class servo(base_motor):
       speed {float} -- The speed of the servo. 0.0 is the slowest, 1.0 is the fastest.
     """
 
-    super(servo, self).__init__(self, port, speed)
+    base_motor.__init__(self, port, speed)
     self.enable()
 
   def set_position(self, position):
