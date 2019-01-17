@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# This file MUST be included in the project directory on the wallaby to get the program to
+# be recognized in the programs list. It also enables running the python script directly
+# from the wallaby.
+
+python /home/root/Documents/KISS/Default\ User/ths-botball-2019/src/__main__.py

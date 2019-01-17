@@ -1,4 +1,8 @@
-#!/usr/bin/env python2
+try:
+    from __wallaby_local import * # for VSCode support
+except ImportError: 
+    import imp; wallaby = imp.load_source('wallaby', '/usr/lib/wallaby.py')
+    from wallaby import * # so it works on actual robot
 
 def print_botball_logo():
   """Prints a cool-looking Botball ASCII-art logo to the console!
