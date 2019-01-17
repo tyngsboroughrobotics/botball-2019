@@ -1,6 +1,9 @@
-#!/usr/bin/env python2
+try:
+    from __wallaby_local import * # for VSCode support
+except ImportError: 
+    import imp; wallaby = imp.load_source('wallaby', '/usr/lib/wallaby.py')
+    from wallaby import * # so it works on actual robot
 
-from wallapy import motors, servos
 from helpers import map, msleep
 
 MOTOR_MAX_TIME = 5.0
@@ -8,6 +11,7 @@ MOTOR_MAX_TIME = 5.0
 seconds required to move the motor.
 """
 
+current_pos = 0
 
 class base_motor:
   """The base class for motors and servos. Provides a common initializer for
@@ -39,17 +43,16 @@ class motor(base_motor):
       time {float} -- The amount of time to move the motor in seconds.
     """
 
-    if direction == FORWARD:
-      velocity = self.speed * 100
-    else:
-      velocity = self.speed * -100
+    velocity = map(self.speed, 0.0, 1.0, 0, 1500)
+    if direction == BACKWARD:
+      velocity = -velocity # negate if backwards
 
     motors.move_at_velocity(self.port, int(velocity))
     msleep(time * 1000)
     motors.off(self.port)
 
 
-SERVO_MIN_POSITION = 100
+SERVO_MIN_POSITION = 300
 """The minimum position allowed to safely move a servo.
 """
 
@@ -69,7 +72,7 @@ class servo(base_motor):
     """
 
     base_motor.__init__(self, port, speed)
-    self.enable()
+    self.real_position = 0
 
   def set_position(self, position):
     """Sets the servo position.
@@ -78,20 +81,30 @@ class servo(base_motor):
       position {float} -- Specify a value between 0.0 and 1.0, where
       0.0 is the leftmost position and 1.0 is the rightmost.
     """
+    self.enable()
+
+    initial_pos = self.real_position
 
 	  # limit the servo range to ~100 in between its actual bounds to avoid breaking the servo
-    mapped_position = map(position, 0.0, 1.0, SERVO_MIN_POSITION, SERVO_MAX_POSITION)
-    
-    distance = abs(self.position() - position)
-    ticks = self.__get_ticks(distance)
+    mapped_position = int(map(position, 0.0, 1.0, SERVO_MIN_POSITION, SERVO_MAX_POSITION))
 
-    pos = self.position()
-    while pos < mapped_position:
-      servos.set_servo_position(self.port, int(pos))
-      msleep(ticks / 1000)
-      pos += 1
+    difference = mapped_position - initial_pos
+    sign = 1 if difference >= 0 else -1
+    distance = abs(difference)
+    ticks = self.__get_ticks()
+
+    x = 0
+    while x < distance:
+      self.__update_position(initial_pos + (sign * x))
+      msleep(ticks)
+      x += 1
     
     msleep(100) # just wait a little bit longer for the servo to finish
+    self.disable()
+
+  def __update_position(self, position): 
+    servos.set_servo_position(self.port, int(position))
+    self.real_position = position
 
   def position(self):
     """The current position of this servo, mapped to between 0.0 and 1.0.
@@ -100,17 +113,7 @@ class servo(base_motor):
       float -- The position (between 0.0 and 1.0).
     """
 
-    return map(self.real_position(), SERVO_MIN_POSITION, SERVO_MAX_POSITION, 0.0, 1.0)
-
-  def real_position(self):
-    """The current position of this servo as directly taken from the
-    robot readings.
-
-    Returns:
-      int -- The position (between `SERVO_MIN_POSITION` and `SERVO_MAX_POSITION`).
-    """
-
-    return servos.get_servo_position(self.port)
+    return map(self.real_position, SERVO_MIN_POSITION, SERVO_MAX_POSITION, 0.0, 1.0)
 
   def enable(self):
     """Enables the servo on the robot.
@@ -124,15 +127,12 @@ class servo(base_motor):
 
     servos.disable_servo(self.port)
 
-  def __get_ticks(self, distance):
+  def __get_ticks(self):
     """Returns the amount of time spent between each increment of the servo
     position, based on `self.speed`.
-
-    Arguments:
-      distance {int} -- The distance that the servo will travel.
 
     Returns:
       int -- The amount of time in milliseconds.
     """
 
-    return 0
+    return map(1.0 - self.speed, 0.0, 1.0, 0.0, 5.0)
