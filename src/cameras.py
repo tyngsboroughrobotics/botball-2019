@@ -43,8 +43,8 @@ class bbox:
     @classmethod
     def from_c(cls, c_obj):
         self = cls() 
-        self.x = c_obj.x 
-        self.y = c_obj.y 
+        self.x = c_obj.ulx
+        self.y = c_obj.uly
         self.width = c_obj.width
         self.height = c_obj.height
 
@@ -133,7 +133,8 @@ class camera:
         if should_update:
             camera_update()
 
-        obj_bbox = bbox.from_c(get_object_bbox(CAMERA_CHANNEL, obj))
+        bbox_c = get_object_bbox(CAMERA_CHANNEL, obj)
+        obj_bbox = bbox.from_c(bbox_c)
 
         if self.debug:
             print 'Bounding box of object', obj, '=', obj_bbox
