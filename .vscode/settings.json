@@ -1,5 +1,4 @@
 {
-    "python.pythonPath": "C:\\Python27\\python.exe",
     "files.exclude":{
         "**/.git": true,
         "**/.svn": true,
