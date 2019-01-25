@@ -7,14 +7,13 @@ from ..helpers.cameras.camera import camera as _camera
 
 def test_motors():
     motor0 = motor.motor(port=0, speed=1.0)
-
-    # this is a blocking method, so we don't have to worry about sleeping!
-    motor0.move(motor.FORWARD, time=2) 
+    motor0.move(motor.FORWARD, distance=2, block=True)
 
 def test_servos():
     servo0 = servo(port=0, speed=0.95)
     servo0.set_position(0.0)
     servo0.set_position(1.0)
+    servo0.set_position(0.0)
 
 def test_create():
     create = _create()

@@ -12,18 +12,19 @@ BACKWARD = 1
 
 class motor(base_motor):
 
-  def move(self, direction, time):
+  def move(self, direction, distance, block=False):
     """Moves the motor.
 
     Arguments:
       direction {int} -- The direction in which to move the motor.
-      time {float} -- The amount of time to move the motor in seconds.
+      distance {int} -- The distance to move the motor in mm.
+      block {bool} -- Whether to block the thread until finished. (Default: `False`)
     """
 
-    velocity = map(self.speed, 0.0, 1.0, 0, 100)
-    if direction == BACKWARD:
-      velocity = -velocity # negate if backwards
+    velocity = map(self.speed, 0.0, 1.0, 0, 1000)
 
-    w.motor(self.port, int(velocity))
-    w.msleep(int(time * 1000))
-    w.off(self.port)
+    w.move_relative_position(self.port, int(velocity), int(-distance if direction == BACKWARD else distance))
+
+    if block:
+      time_to_sleep = NotImplemented # TODO: FINISH THIS!
+      w.msleep(int(time_to_sleep))
