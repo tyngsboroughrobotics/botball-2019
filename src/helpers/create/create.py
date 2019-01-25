@@ -1,10 +1,8 @@
 try:
-    from __wallaby_local import * # for VSCode support
+    from src import __wallaby_local as w # for VSCode support
 except ImportError: 
     import imp; wallaby = imp.load_source('wallaby', '/usr/lib/wallaby.py')
-    from wallaby import * # so it works on actual robot
-
-from helpers import msleep
+    import wallaby as w # so it works on actual robot
 
 WHITE_INFARED_L = 2100
 BLACK_INFARED_L = 1100
@@ -31,7 +29,7 @@ class create:
 
 
         self.speed = speed
-        create_connect()
+        w.create_connect()
         
     def turn_right(self, angle):
         """Turns the Create right at the angle specified.
@@ -40,8 +38,8 @@ class create:
             angle {int} -- The angle to turn.
         """
 
-        self.internal_create.rotate_angle_wait(speed=self.speed, angle=-angle)
-        create_spin_CW()
+        # self.internal_create.rotate_angle_wait(speed=self.speed, angle=-angle)
+        # w.create_spin_CW() # TODO: FINISH
 
     def turn_left(self, angle):
         """Turns the Create left at the angle specified.
@@ -59,7 +57,8 @@ class create:
             distance {int} -- The distance in mm.
         """
 
-        self.internal_create.drive_distance_wait(speed=self.speed, dist=distance)
+        # TODO: FINISH
+        # self.internal_create.drive_distance_wait(speed=self.speed, dist=distance)
 
     def drive_backward(self, distance):
         """Drives the Create backward for the specified distance.
@@ -68,27 +67,3 @@ class create:
             distance {int} -- The distance in mm.
         """
         self.drive_forward(-distance)
-
-    def follow_line(self, distance):
-        print "follow_line", distance
-        
-        current_distance = 0
-
-        while current_distance < distance:
-            cliff_left = w.get_create_lfcliff_amt()
-            cliff_right = w.get_create_rfcliff_amt()
-
-            if cliff_left < WHITE_INFARED_L:
-                print "TURN RIGHT"
-                self.turn_right(10)
-            elif cliff_right < WHITE_INFARED_R:
-                print "TURN LEFT"
-                self.turn_left(10)
-            
-            self.drive_forward(10)
-
-            # msleep(100)
-        
-            current_distance += 10
-
-        w.create_stop()

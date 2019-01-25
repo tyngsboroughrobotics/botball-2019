@@ -2,7 +2,7 @@ try:
     from __wallaby_local import * # for VSCode support
 except ImportError: 
     import imp; wallaby = imp.load_source('wallaby', '/usr/lib/wallaby.py')
-    from wallaby import * # so it works on actual robot
+    import wallaby as w # so it works on actual robot
 
 def print_botball_logo():
   """Prints a cool-looking Botball ASCII-art logo to the console!
@@ -30,13 +30,3 @@ def map(x, in_min, in_max, out_min, out_max):
   """
 
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
-
-def msleep(ms):
-  """Blocks for the desired amount of milliseconds.
-  
-  Arguments:
-    ms {int} -- The number of milliseconds to sleep.
-  """
-
-  from time import sleep
-  sleep(ms / 1000)

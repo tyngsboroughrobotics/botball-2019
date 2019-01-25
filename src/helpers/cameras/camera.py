@@ -1,8 +1,10 @@
 try:
-    from __wallaby_local import * # for VSCode support
+    from src import __wallaby_local as w # for VSCode support
 except ImportError: 
     import imp; wallaby = imp.load_source('wallaby', '/usr/lib/wallaby.py')
-    from wallaby import * # so it works on actual robot
+    import wallaby as w # so it works on actual robot
+
+from geometry import bbox
 
 CAMERA_CONFIG_PATH = '/home/root/Documents/KISS/Default User/ths-botball-2019/res/camera-channels/'
 """The path for the camera configuration files. This shouldn't need
@@ -21,42 +23,6 @@ OBJECT_CONFIDENCE_THRESHOLD = 0.42
 object to be recognized as "trackable".
 """
 
-class point:
-    x = None
-    y = None
-
-    @classmethod
-    def from_c(cls, c_obj):
-        self = cls() 
-        self.x = c_obj.x 
-        self.y = c_obj.y 
-
-        return self 
-
-
-class bbox:
-    x = None
-    y = None 
-    width = None 
-    height = None
-
-    @classmethod
-    def from_c(cls, c_obj):
-        self = cls() 
-        self.x = c_obj.ulx
-        self.y = c_obj.uly
-        self.width = c_obj.width
-        self.height = c_obj.height
-
-        return self 
-
-    def center(self):
-        center = point()
-        center.x = self.x + (self.width / 2)
-        center.y = self.y + (self.height / 2)
-
-        return center
-
 class camera:
     """Represents a Logitech USB camera connected to the wallaby.
     
@@ -74,15 +40,15 @@ class camera:
         """Initializes the camera in a `with` block.
         """
 
-        camera_open() # NOTE: This will cause a SEGFAULT if the camera isn't connected!
-        set_camera_config_base_path(CAMERA_CONFIG_PATH)
+        w.camera_open() # NOTE: This will cause a SEGFAULT if the camera isn't connected!
+        w.set_camera_config_base_path(CAMERA_CONFIG_PATH)
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         """Called when the `with` block exits; cleans up resources.
         """
 
-        camera_close()
+        w.camera_close()
 
     def __init__(self, color, debug=False):
         """Initializes the camera with the specified parameters.
@@ -108,7 +74,7 @@ class camera:
         self.current_color = color
         
         conf_name = 'detect-' + color # DON'T include the .conf extension
-        result = camera_load_config(conf_name)
+        result = w.camera_load_config(conf_name)
         
         if self.debug:
             print 'Loaded conf name: ', conf_name, 'Result: ', result
@@ -122,18 +88,18 @@ class camera:
         """
 
         if should_update:
-            camera_update()
+            w.camera_update()
 
-        return get_object_count(CAMERA_CHANNEL) >= 1
+        return w.get_object_count(CAMERA_CHANNEL) >= 1
     
     def current_object_bbox(self, should_update=True):
         return self.object_bbox(0, should_update)
 
     def object_bbox(self, obj, should_update=True):
         if should_update:
-            camera_update()
+            w.camera_update()
 
-        bbox_c = get_object_bbox(CAMERA_CHANNEL, obj)
+        bbox_c = w.get_object_bbox(CAMERA_CHANNEL, obj)
         obj_bbox = bbox.from_c(bbox_c)
 
         if self.debug:
@@ -146,7 +112,7 @@ class camera:
 
     def distance_to_object(self, obj, obj_height_mm, should_update=True):
         if should_update:
-            camera_update()
+            w.camera_update()
 
         if not self.object_is_present(should_update=False): # use the current frame; don't update a second time
             raise Exception('Tried to calculate distance but no objects were present')
@@ -156,7 +122,7 @@ class camera:
         # the object isn't going to fill the *entire* FOV (because then it
         # wouldn't be picked up by the camera!), so subtract a bit to account
         # for that and make the estimate more accurate
-        camera_height = float(get_camera_height() - 15)
+        camera_height = float(w.get_camera_height() - 15)
         
         distance = (camera_height * obj_height_mm) / obj_bbox.height
 
@@ -170,9 +136,9 @@ class camera:
 
     def object_confidence(self, obj, should_update=True):
         if should_update:
-            camera_update()
+            w.camera_update()
 
-        confidence = get_object_confidence(CAMERA_CHANNEL, obj)
+        confidence = w.get_object_confidence(CAMERA_CHANNEL, obj)
 
         if self.debug:
             print 'Object confidence:', confidence
@@ -194,7 +160,7 @@ class camera:
         """
 
         if should_update:
-            camera_update()
+            w.camera_update()
         
         is_trackable = self.object_is_present(should_update) and self.object_confidence(obj, should_update) > OBJECT_CONFIDENCE_THRESHOLD
 
