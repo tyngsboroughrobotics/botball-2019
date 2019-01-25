@@ -1,3 +1,9 @@
+try:
+    from src import __wallaby_local as w # for VSCode support
+except ImportError: 
+    import imp; wallaby = imp.load_source('wallaby', '/usr/lib/wallaby.py')
+    import wallaby as w # so it works on actual robot
+
 __CURRENT_SCORE = 0
 
 def score_add(amount):
@@ -28,12 +34,5 @@ def score():
 def print_score():
     """Prints the current score to the console.
     """
+    
     print '**** Current score: ' + str(__CURRENT_SCORE) + ' ****'
-
-# Score types
-#
-# Fill this in as we develop our strategy. Example:
-#
-#     POM_PICKED_UP = 3
-#     score_add(POM_PICKED_UP)
-#

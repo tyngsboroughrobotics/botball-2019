@@ -124,7 +124,7 @@ dmypy.json
 
 ### VisualStudioCode ###
 .vscode/*
-!.vscode/settings.json
+# !.vscode/settings.json # UNCOMMENT THIS IN THE FUTURE IF YOU WANT TO USE SETTINGS
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
