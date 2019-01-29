@@ -23,10 +23,6 @@ def follow_object():
 
         while True:
             if camera.object_is_present() and camera.is_current_object_trackable():
-                #### Move the claw to follow the object ####
-
-                object_y_pos =  camera.current_object_bbox().y
-                
 
                 #### Move robot toward/away from object ####
 
