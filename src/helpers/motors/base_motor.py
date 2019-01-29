@@ -4,7 +4,7 @@ except ImportError:
     import imp; wallaby = imp.load_source('wallaby', '/usr/lib/wallaby.py')
     import wallaby as w # so it works on actual robot
 
-from ..functions import map
+from src.helpers.functions import map
 
 MOTOR_MAX_TIME = 5.0
 """This is multiplied by `motor.speed` to achieve the time in

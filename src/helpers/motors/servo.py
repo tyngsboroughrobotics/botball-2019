@@ -5,6 +5,7 @@ except ImportError:
     import wallaby as w # so it works on actual robot
 
 from base_motor import base_motor
+from src.helpers.functions import map
 
 SERVO_MIN_POSITION = 300
 """The minimum position allowed to safely move a servo.

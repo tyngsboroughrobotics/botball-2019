@@ -1,7 +1,13 @@
-from ..helpers.motors import motor
-from ..helpers.motors.servo import servo
-from ..helpers.create.create import create as _create
-from ..helpers.cameras.camera import camera as _camera
+try:
+    from src import __wallaby_local as w # for VSCode support
+except ImportError: 
+    import imp; wallaby = imp.load_source('wallaby', '/usr/lib/wallaby.py')
+    import wallaby as w # so it works on actual robot
+
+from src.helpers.motors import motor
+from src.helpers.motors.servo import servo
+from src.helpers.create.create import create as _create
+from src.helpers.cameras.camera import camera as _camera
 
 # Test motors
 

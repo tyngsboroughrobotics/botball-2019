@@ -1,7 +1,13 @@
-from ..helpers.cameras.camera import camera as _camera
-from ..helpers.motors import motor
+try:
+    from src import __wallaby_local as w # for VSCode support
+except ImportError: 
+    import imp; wallaby = imp.load_source('wallaby', '/usr/lib/wallaby.py')
+    import wallaby as w # so it works on actual robot
 
-OBJECT_TO_FOLLOW_COLOR = 'yellow'  # red | yellow | green 
+from src.helpers.cameras.camera import camera as _camera
+from src.helpers.motors import motor
+
+OBJECT_TO_FOLLOW_COLOR = 'green'  # red | yellow | green
 OBJECT_HEIGHT = 48  # in mm (this is currently representing the little foam blocks)
 
 def follow_object():
@@ -13,21 +19,31 @@ def follow_object():
         right_motor.move(motor.BACKWARD, amount, block=True)
 
     with _camera(color=OBJECT_TO_FOLLOW_COLOR) as camera:
-        while True:
-            previous_distance_to_object = None  # initialize to None; it'll be updated later
+        previous_distance_to_object = None  # initialize to None; it'll be updated later
 
+        while True:
             if camera.object_is_present() and camera.is_current_object_trackable():
+                #### Move the claw to follow the object ####
+
+                object_y_pos =  camera.current_object_bbox().y
+                
+
+                #### Move robot toward/away from object ####
+
                 distance_to_object = camera.distance_to_current_object(OBJECT_HEIGHT)
 
                 # If it is None, that means that we just started up (so of course there's no change yet).
-                # Rhe previous_distance_to_object is updated below regardless of this check.
+                # The previous_distance_to_object is initialized if it is.
                 if previous_distance_to_object is not None:
-                    distance_change = distance_to_object - distance_to_object
+                    distance_change = previous_distance_to_object - distance_to_object
 
-                    if abs(distance_change) >= 5:
+                    if abs(distance_change) >= 10:
                         # the object moved; move the robot to follow it
 
-                        amount_to_move = distance_change * 10  # TODO: IMPLEMENT THIS!
+                        amount_to_move = distance_change * 5  # TODO: IMPLEMENT THIS!
+                        print '*** amount_to_move =', amount_to_move
                         drive_both_motors(amount_to_move)
-
-                previous_distance_to_object = distance_to_object
+                        
+                    previous_distance_to_object = distance_to_object
+                else:
+                    previous_distance_to_object = distance_to_object  # initialize previous_distance_to_object

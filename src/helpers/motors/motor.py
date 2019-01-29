@@ -5,6 +5,7 @@ except ImportError:
     import wallaby as w # so it works on actual robot
 
 from base_motor import base_motor
+from src.helpers.functions import map
 
 FORWARD = 0
 BACKWARD = 1
@@ -26,5 +27,5 @@ class motor(base_motor):
     w.move_relative_position(self.port, int(velocity), int(-distance if direction == BACKWARD else distance))
 
     if block:
-      time_to_sleep = NotImplemented # TODO: FINISH THIS!
-      w.msleep(int(time_to_sleep))
+      time_to_sleep = distance # TODO: FINISH THIS!
+      w.msleep(int(abs(time_to_sleep)))
