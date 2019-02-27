@@ -16,7 +16,7 @@ def follow_object():
 
     def drive_both_motors(amount):
         left_motor.move(motor.FORWARD, amount)
-        right_motor.move(motor.BACKWARD, amount, block=True)
+        right_motor.move(motor.FORWARD, amount, block=True)
 
     with _camera(color=OBJECT_TO_FOLLOW_COLOR) as camera:
         previous_distance_to_object = None  # initialize to None; it'll be updated later

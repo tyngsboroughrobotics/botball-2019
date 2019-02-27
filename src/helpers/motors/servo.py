@@ -5,7 +5,7 @@ except ImportError:
     import wallaby as w # so it works on actual robot
 
 from base_motor import base_motor
-from src.helpers.functions import map
+from src.helpers.functions import map, msleep
 
 SERVO_MIN_POSITION = 300
 """The minimum position allowed to safely move a servo.
@@ -30,7 +30,7 @@ class servo(base_motor):
     self.real_position = 0
 
   def set_position(self, position):
-    """Sets the servo position.
+    """Sets the servo position and blocks until finished.
 
     Arguments:
       position {float} -- Specify a value between 0.0 and 1.0, where
@@ -51,10 +51,10 @@ class servo(base_motor):
     x = 0
     while x < distance:
       self.__update_position(initial_pos + (sign * x))
-      w.msleep(ticks)
+      msleep(ticks)
       x += 1
     
-    w.msleep(100) # just wait a little bit longer for the servo to finish
+    msleep(100) # just wait a little bit longer for the servo to finish
     self.disable()
 
   def __update_position(self, position): 
