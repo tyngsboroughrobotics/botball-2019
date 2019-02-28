@@ -44,7 +44,7 @@ class motor(base_motor):
 
 # Some helper functions
 
-TURN_90_DEGREE_AMOUNT = 9 # amount in mm (sent to the wheel_group.drive method)
+TURN_DEGREE_AMOUNT = 10 # amount in mm (sent to the wheel_group.drive method)
 
 
 class wheel_group(object):
@@ -68,14 +68,8 @@ class wheel_group(object):
 
     # Helpers for turning in place
 
-    def turn_90_right(self):
-        self.drive(TURN_90_DEGREE_AMOUNT, -TURN_90_DEGREE_AMOUNT)
+    def turn_right(self, degrees):
+        self.drive(TURN_DEGREE_AMOUNT * degrees, -TURN_DEGREE_AMOUNT * degrees)
 
-    def turn_90_left(self):
-        self.drive(-TURN_90_DEGREE_AMOUNT, TURN_90_DEGREE_AMOUNT)
-
-    def turn_180_right(self):
-        self.drive(TURN_90_DEGREE_AMOUNT * 2, -(TURN_90_DEGREE_AMOUNT * 2))
-
-    def turn_180_left(self):
-        self.drive(-(TURN_90_DEGREE_AMOUNT * 2), TURN_90_DEGREE_AMOUNT)
+    def turn_left(self, degrees):
+        self.turn_right(-degrees)
