@@ -22,6 +22,11 @@ class motor(base_motor):
   def __mm_to_ticks(self, mm):
     return TICKS_IN_1_MM * mm
 
+  def __block_motor_done(self):
+    w.msleep(5)
+    while not w.get_motor_done(self.port):
+      w.msleep(5)
+
   def move(self, direction, distance, block=False):
     """Moves the motor.
 
@@ -39,7 +44,7 @@ class motor(base_motor):
     w.move_relative_position(self.port, int(velocity), int(-distance_in_ticks if direction == BACKWARD else distance_in_ticks))
 
     if block:
-      w.block_motor_done(self.port)
+      self.__block_motor_done()
 
 
 # Some helper functions
