@@ -13,6 +13,8 @@ TICKS_PER_SECOND = 818  # also our own measurement because 1000/1500 tps is way 
 FORWARD = 0
 BACKWARD = 1
 
+MOTOR_MSLEEP_TIME = 300  # in ms
+
 
 class motor(base_motor):
 
@@ -30,7 +32,7 @@ class motor(base_motor):
 
     return abs(int(ticks * (TICKS_PER_SECOND / self.velocity())))
 
-  def move(self, direction, distance, block=True):
+  def move(self, direction, distance, block=True, sleep=True):
     """Moves the motor.
 
     Arguments:
@@ -39,6 +41,11 @@ class motor(base_motor):
       block {bool} -- Whether to block the thread until finished. (Default: `True`)
                       If you don't block the thread, you are responsible for calling
                       `off()` on the motor!
+      sleep {bool} -- Whether to sleep for a little while (~500ms) after the motor
+                      finishes driving. You should probably keep this set to `True`
+                      unless you have a sleep somewhere else in the program, because
+                      not sleeping will cause the motor to sometimes finish too early.
+                      (not fun to debug)
     """
 
     velocity = self.velocity()
@@ -53,6 +60,9 @@ class motor(base_motor):
 
       w.msleep(ms)
       w.off(self.port)
+
+    if sleep:
+      w.msleep(MOTOR_MSLEEP_TIME)
 
 # Some helper functions
 
@@ -72,13 +82,14 @@ class wheel_group(object):
         self.left_motor.speed *= left_offset
         self.right_motor.speed *= right_offset
 
-    def drive(self, left_distance, right_distance = None, left_direction = FORWARD, right_direction = None, block = True, offset = True):
+    def drive(self, left_distance, right_distance = None, left_direction = FORWARD, right_direction = None, block = True, sleep = True, offset = True):
         """
         Drives both motors and blocks (by default) until they finish.
         Amount is in mm. If `right_distance` is omitted then
         `left_distance` is used for both motors.
         If you don't `block`, then you're responsible for calling `off()` 
         on the motors you drive!
+        See `motor.move` for documentation on the `sleep` parameter.
         """
 
         ld = left_distance
@@ -91,16 +102,19 @@ class wheel_group(object):
             ld *= self.left_offset
             rd *= self.right_offset
 
-        self.left_motor.move(ldir, ld, block=False)
-        self.right_motor.move(rdir, rd, block=block)
+        self.left_motor.move(ldir, ld, block=False, sleep=False)
+        self.right_motor.move(rdir, rd, block=block, sleep=False)
 
         if block:
           w.off(self.left_motor.port)
 
+        if sleep:
+          w.msleep(MOTOR_MSLEEP_TIME)
+
     # Helpers for turning in place
 
-    def turn_right(self, degrees, block = True):
-        self.drive(TURN_DEGREE_AMOUNT * degrees, left_direction=BACKWARD, right_direction=FORWARD, offset=False, block=block)
+    def turn_right(self, degrees, block = True, sleep = True):
+        self.drive(TURN_DEGREE_AMOUNT * degrees, left_direction=BACKWARD, right_direction=FORWARD, offset=False, sleep=sleep, block=block)
 
-    def turn_left(self, degrees, block = True):
-        self.turn_right(-degrees, block=block)
+    def turn_left(self, degrees, block = True, sleep = True):
+        self.turn_right(-degrees, block=block, sleep=sleep)
