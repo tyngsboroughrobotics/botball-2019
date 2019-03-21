@@ -10,10 +10,10 @@ from src.helpers.cameras import camera as _camera
 
 # Set up motors/servos
 
-# the right motor veers off a bit, so we make it a bit faster to have the
-# robot move in a straight line
-LEFT_MOTOR_OFFSET = 1
-RIGHT_MOTOR_OFFSET = 1.035
+# the right motor veers off a bit, so we make the left wheel a bit slower
+# to have the robot move in a straight line
+LEFT_MOTOR_OFFSET = 0.96
+RIGHT_MOTOR_OFFSET = 1
 
 left_motor = motor.motor(port=1, speed=1.0)
 right_motor = motor.motor(port=3, speed=1.0) 
@@ -45,9 +45,12 @@ def step_1_get_firefighter():
     # From the starting box, turn and face the firefighter cube. Put the plow down and drive it over
     # to the firefighter cube so the cube is in the plow
     wheels.turn_left(20) # in degrees
+    w.msleep(500)
     arm_servo.set_position(0.35) # 0.4 makes the plow touch the table (don't set it to more than this)
     wheels.drive(100) # in mm
+    w.msleep(500)
     wheels.turn_left(70)
+    w.msleep(500)
 
     print '**** Step 1 done ****'
 
@@ -57,12 +60,13 @@ def step_2_drive_over_to_buildings():
 
     arm_servo.set_position(0.35) # TEMPORARY
 
-    wheels.drive(350)
-    wheels.turn_right(45)
-    wheels.drive(200)
-    wheels.turn_right(45)
-    wheels.drive(300)
-    wheels.turn_left(90)
+    wheels.drive(350); w.msleep(500)
+    wheels.turn_right(45); w.msleep(500)
+    wheels.drive(250); w.msleep(500)
+    wheels.turn_right(45); w.msleep(500)
+    wheels.drive(250); w.msleep(500)
+    wheels.turn_left(90); w.msleep(500)
+
 
     print '**** Step 2 done ****'
 
@@ -81,9 +85,10 @@ def step_3_put_cube_in_burning_building():
 def run():
     print '**** Running game ****'
 
-    reset()
+    # reset()
  
-    # step_1_get_firefighter()
-    step_2_drive_over_to_buildings()
+    step_1_get_firefighter()
 
-    finish()
+    # finish()
+
+    print '**** Game done ***'

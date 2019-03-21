@@ -8,6 +8,7 @@ from base_motor import base_motor
 from src.helpers.functions import map
 
 TICKS_IN_1_MM = 1.0/1.13  # looks weird, but we did the measurement :)
+TICKS_PER_SECOND = 818  # also our own measurement because 1000/1500 tps is way too much
 
 FORWARD = 0
 BACKWARD = 1
@@ -15,41 +16,47 @@ BACKWARD = 1
 
 class motor(base_motor):
 
-  def __wait_until_done(self):
-    while not w.get_motor_done(self.port):
-      w.msleep(2)
-
   def __mm_to_ticks(self, mm):
     return TICKS_IN_1_MM * mm * 10
 
-  def __block_motor_done(self):
-    w.msleep(5)
-    while not w.get_motor_done(self.port):
-      w.msleep(5)
+  def velocity(self):
+    return int(map(self.speed, 0.0, 1.0, 0, TICKS_PER_SECOND))
 
-  def move(self, direction, distance, block=False):
+  def __ticks_to_ms(self, ticks):
+    print 'self.speed =', self.speed
+    print 'velocity =', abs(self.velocity())
+    print 'TPS/velocity =', abs(TICKS_PER_SECOND / self.velocity())
+    print 'ticks*(TPS/v) =', abs(ticks * (TICKS_PER_SECOND / self.velocity()))
+
+    return abs(int(ticks * (TICKS_PER_SECOND / self.velocity())))
+
+  def move(self, direction, distance, block=True):
     """Moves the motor.
 
     Arguments:
       direction {int} -- The direction in which to move the motor.
       distance {int} -- The distance to move the motor in mm.
-      block {bool} -- Whether to block the thread until finished. (Default: `False`)
+      block {bool} -- Whether to block the thread until finished. (Default: `True`)
+                      If you don't block the thread, you are responsible for calling
+                      `off()` on the motor!
     """
 
-    velocity = map(self.speed, 0.0, 1.0, 0, 1000)
-    distance_in_ticks = self.__mm_to_ticks(distance)
+    velocity = self.velocity()
+    if direction == BACKWARD:
+      velocity *= -1
 
-    print '***', distance, '==>', distance_in_ticks
-
-    w.move_relative_position(self.port, int(velocity), int(-distance_in_ticks if direction == BACKWARD else distance_in_ticks))
+    w.mav(self.port, velocity)
 
     if block:
-      self.__block_motor_done()
+      distance_in_ticks = self.__mm_to_ticks(distance)
+      ms = self.__ticks_to_ms(distance_in_ticks)
 
+      w.msleep(ms)
+      w.off(self.port)
 
 # Some helper functions
 
-TURN_DEGREE_AMOUNT = 1 # amount in mm (sent to the wheel_group.drive method)
+TURN_DEGREE_AMOUNT = 0.85 # amount in mm (sent to the wheel_group.drive method)
 
 class wheel_group(object):
     """Represents a group of two motors representing a left
@@ -65,7 +72,7 @@ class wheel_group(object):
         self.left_motor.speed *= left_offset
         self.right_motor.speed *= right_offset
 
-    def drive(self, left_distance, right_distance = None, direction = FORWARD, block = True, offset = True):
+    def drive(self, left_distance, right_distance = None, left_direction = FORWARD, right_direction = None, block = True, offset = True):
         """
         Drives both motors and blocks (by default) until they finish.
         Amount is in mm. If `right_distance` is omitted then
@@ -77,17 +84,23 @@ class wheel_group(object):
         ld = left_distance
         rd = right_distance if right_distance is not None else left_distance
 
+        ldir = left_direction
+        rdir = right_direction if left_direction is not None else left_direction
+
         if offset:
             ld *= self.left_offset
             rd *= self.right_offset
 
-        self.left_motor.move(direction, ld)
-        self.right_motor.move(direction, rd, block=block)
+        self.left_motor.move(ldir, ld, block=False)
+        self.right_motor.move(rdir, rd, block=block)
+
+        if block:
+          w.off(self.left_motor.port)
 
     # Helpers for turning in place
 
     def turn_right(self, degrees, block = True):
-        self.drive(TURN_DEGREE_AMOUNT * degrees, -TURN_DEGREE_AMOUNT * degrees, offset=False, block=block)
+        self.drive(TURN_DEGREE_AMOUNT * degrees, left_direction=BACKWARD, right_direction=FORWARD, offset=False, block=block)
 
     def turn_left(self, degrees, block = True):
         self.turn_right(-degrees, block=block)

@@ -9,6 +9,7 @@ except ImportError:
 
 from helpers.functions import print_botball_logo
 from game import game
+# from game import game_create
 
 print_botball_logo()
-game.run()
+game.run() # choose `game` or `game_create` to run
