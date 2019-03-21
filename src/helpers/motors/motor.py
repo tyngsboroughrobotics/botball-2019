@@ -66,7 +66,7 @@ class motor(base_motor):
 
 # Some helper functions
 
-TURN_DEGREE_AMOUNT = 0.85 # amount in mm (sent to the wheel_group.drive method)
+TURN_DEGREE_AMOUNT = 0.86 # amount in mm (sent to the wheel_group.drive method)
 
 class wheel_group(object):
     """Represents a group of two motors representing a left
@@ -114,7 +114,7 @@ class wheel_group(object):
     # Helpers for turning in place
 
     def turn_right(self, degrees, block = True, sleep = True):
-        self.drive(TURN_DEGREE_AMOUNT * degrees, left_direction=BACKWARD, right_direction=FORWARD, offset=False, sleep=sleep, block=block)
+        self.drive(TURN_DEGREE_AMOUNT * degrees, left_direction=FORWARD, right_direction=BACKWARD, offset=False, sleep=sleep, block=block)
 
     def turn_left(self, degrees, block = True, sleep = True):
-        self.turn_right(-degrees, block=block, sleep=sleep)
+        self.drive(TURN_DEGREE_AMOUNT * degrees, left_direction=BACKWARD, right_direction=FORWARD, offset=False, sleep=sleep, block=block)
