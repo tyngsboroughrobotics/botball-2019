@@ -12,7 +12,7 @@ from src.helpers.cameras import camera as _camera
 
 # the right motor veers off a bit, so we make the left wheel a bit slower
 # to have the robot move in a straight line
-LEFT_MOTOR_OFFSET = 0.96
+LEFT_MOTOR_OFFSET = 0.98
 RIGHT_MOTOR_OFFSET = 1
 
 left_motor = motor.motor(port=1, speed=1.0)
@@ -44,8 +44,12 @@ def step_1_get_firefighter():
 
     # From the starting box, turn and face the firefighter cube. Put the plow down and drive it over
     # to the firefighter cube so the cube is in the plow
-    arm_servo.set_position(0.35) # 0.4 makes the plow touch the table (don't set it to more than this)
+    arm_servo.set_position(0)
+
     wheels.turn_left(20) # in degrees
+    
+    arm_servo.set_position(0.35) # 0.4 makes the plow touch the table (don't set it to more than this)
+    
     wheels.drive(100) # in mm
     wheels.turn_left(70)
 
@@ -62,7 +66,7 @@ def step_2_drive_over_to_buildings():
     wheels.drive(250)
     wheels.turn_right(45)
     wheels.drive(250)
-    wheels.turn_left(90)
+    wheels.turn_left(105)
 
 
     print '**** Step 2 done ****'
@@ -71,21 +75,61 @@ def step_2_drive_over_to_buildings():
 def step_3_put_cube_in_burning_building():
     print '**** Step 3: Put firefighter in burning building **'
 
+    # drive up to the building and leave the cube there
+    def dispense_object():
+        wheels.drive(50)
+        wheels.drive(100, direction=motor.BACKWARD)
+
+    class ObjectIsAtSecondBuilding(Exception): pass
+
     with _camera.camera(color='yellow') as camera:
-        if camera.object_is_present() and camera.is_current_object_trackable():
-            pass # Dispense the object
-        else:
-            pass # Move to the second building and dispense it there
+        try:
+            # make sure that both a yellow AND red object is present (the marker
+            # is yellow with a red circle in the middle)
+            if camera.is_current_object_trackable(should_update=False):
+                print 'Yellow marker successfully detected'
+
+                camera.change_color_to('red')
+
+                if camera.is_current_object_trackable(should_update=False):
+                    print 'Red marker successfully detected'
+                    print 'Object is at first building!'
+
+                    dispense_object()
+
+                    # Move to the center black line from the first building
+                    wheels.turn_right(230)
+                    wheels.drive(50)
+                else:
+                    raise ObjectIsAtSecondBuilding()
+            else:
+                raise ObjectIsAtSecondBuilding()
+        except ObjectIsAtSecondBuilding:
+            print 'Object is at second building!'
+
+            # Move to the second building
+            wheels.turn_right(45)
+            wheels.drive(250)
+
+            dispense_object()
+
+            # Move to the center black line from the second building 
+            wheels.drive(100, direction=motor.BACKWARD)
+            wheels.turn_right(130)
 
     print '**** Step 3 done ****'
 
 def run():
     print '**** Running game ****'
 
-    # reset()
+    reset()
  
     step_1_get_firefighter()
+    step_2_drive_over_to_buildings()
+    step_3_put_cube_in_burning_building()
+    w.msleep(0) # TODO: Wait for the Create to get out of the way before continuing
+    # TODO: Step 4
 
-    # finish()
+    finish()
 
     print '**** Game done ***'

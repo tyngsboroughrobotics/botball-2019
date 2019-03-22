@@ -6,12 +6,6 @@ except ImportError:
 
 from geometry import bbox
 
-CAMERA_CONFIG_PATH = '/home/root/Documents/KISS/Default User/ths-botball-2019/res/camera-channels/'
-"""The path for the camera configuration files. This shouldn't need
-to be changed if you use the provided configuration files under
-`res/camera-channels`.
-"""
-
 CAMERA_CHANNEL = 0
 """The camera channel on which to check for objects. This shouldn't
 need to be changed if you use the provided configuration files under
@@ -41,7 +35,6 @@ class camera:
         """
 
         w.camera_open() # NOTE: This will cause a SEGFAULT if the camera isn't connected!
-        w.set_camera_config_base_path(CAMERA_CONFIG_PATH)
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
@@ -81,6 +74,10 @@ class camera:
 
         if result is 0:
             raise Exception('Error while loading color config file "' + conf_name + '"!')
+
+        # allow the camera to get its bearings by updating the feed for a bit
+        for _ in range(20):
+            w.camera_update()
         
     def object_is_present(self, should_update=True):
         """Returns a boolean representing whether an object was found in 
@@ -99,6 +96,9 @@ class camera:
         if should_update:
             w.camera_update()
 
+        if not self.object_is_present(should_update=False):
+            raise Exception('Tried to get object bbox but no objects are present')
+
         bbox_c = w.get_object_bbox(CAMERA_CHANNEL, obj)
         obj_bbox = bbox.from_c(bbox_c)
 
@@ -114,8 +114,8 @@ class camera:
         if should_update:
             w.camera_update()
 
-        if not self.object_is_present(should_update=False): # use the current frame; don't update a second time
-            raise Exception('Tried to calculate distance but no objects were present')
+        if not self.object_is_present(should_update=False):
+            raise Exception('Tried to get distance to object but no objects are present')
 
         obj_bbox = self.object_bbox(obj, should_update=False)
         
@@ -137,6 +137,9 @@ class camera:
     def object_confidence(self, obj, should_update=True):
         if should_update:
             w.camera_update()
+
+        if not self.object_is_present(should_update=False):
+            raise Exception('Tried to get object confidence but no objects are present')
 
         confidence = w.get_object_confidence(CAMERA_CHANNEL, obj)
 
@@ -162,7 +165,7 @@ class camera:
         if should_update:
             w.camera_update()
         
-        is_trackable = self.object_is_present(should_update) and self.object_confidence(obj, should_update) > OBJECT_CONFIDENCE_THRESHOLD
+        is_trackable = self.object_is_present(should_update) and self.object_confidence(obj, should_update=False) > OBJECT_CONFIDENCE_THRESHOLD
 
         if self.debug:
             print 'Object is trackable:', is_trackable

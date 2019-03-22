@@ -25,11 +25,6 @@ class motor(base_motor):
     return int(map(self.speed, 0.0, 1.0, 0, TICKS_PER_SECOND))
 
   def __ticks_to_ms(self, ticks):
-    print 'self.speed =', self.speed
-    print 'velocity =', abs(self.velocity())
-    print 'TPS/velocity =', abs(TICKS_PER_SECOND / self.velocity())
-    print 'ticks*(TPS/v) =', abs(ticks * (TICKS_PER_SECOND / self.velocity()))
-
     return abs(int(ticks * (TICKS_PER_SECOND / self.velocity())))
 
   def move(self, direction, distance, block=True, sleep=True):
@@ -82,21 +77,21 @@ class wheel_group(object):
         self.left_motor.speed *= left_offset
         self.right_motor.speed *= right_offset
 
-    def drive(self, left_distance, right_distance = None, left_direction = FORWARD, right_direction = None, block = True, sleep = True, offset = True):
+    def drive(self, distance, right_distance = None, direction = FORWARD, right_direction = None, block = True, sleep = True, offset = True):
         """
         Drives both motors and blocks (by default) until they finish.
         Amount is in mm. If `right_distance` is omitted then
-        `left_distance` is used for both motors.
+        `distance` is used for both motors.
         If you don't `block`, then you're responsible for calling `off()` 
         on the motors you drive!
         See `motor.move` for documentation on the `sleep` parameter.
         """
 
-        ld = left_distance
-        rd = right_distance if right_distance is not None else left_distance
+        ld = distance
+        rd = right_distance if right_distance is not None else distance
 
-        ldir = left_direction
-        rdir = right_direction if left_direction is not None else left_direction
+        ldir = direction
+        rdir = right_direction if right_direction is not None else direction
 
         if offset:
             ld *= self.left_offset
@@ -114,7 +109,7 @@ class wheel_group(object):
     # Helpers for turning in place
 
     def turn_right(self, degrees, block = True, sleep = True):
-        self.drive(TURN_DEGREE_AMOUNT * degrees, left_direction=FORWARD, right_direction=BACKWARD, offset=False, sleep=sleep, block=block)
+        self.drive(TURN_DEGREE_AMOUNT * degrees, direction=FORWARD, right_direction=BACKWARD, offset=False, sleep=sleep, block=block)
 
     def turn_left(self, degrees, block = True, sleep = True):
-        self.drive(TURN_DEGREE_AMOUNT * degrees, left_direction=BACKWARD, right_direction=FORWARD, offset=False, sleep=sleep, block=block)
+        self.drive(TURN_DEGREE_AMOUNT * degrees, direction=BACKWARD, right_direction=FORWARD, offset=False, sleep=sleep, block=block)
