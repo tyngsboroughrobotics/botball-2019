@@ -8,8 +8,9 @@ except ImportError:
     import wallaby as w # so it works on actual robot
 
 from helpers.functions import print_botball_logo
-from game import game
-# from game import game_create
 
 print_botball_logo()
-game.run() # choose `game` or `game_create` to run
+
+# choose `game` or `game_create` to run
+from game import game_create as game
+game.run()

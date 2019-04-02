@@ -61,6 +61,14 @@ def step_2_drive_over_to_buildings():
 
     arm_servo.set_position(0.35) # TEMPORARY
 
+    # # "Swoop around" to get the fire truck along the way 
+    # wheels.drive(350)
+    # # wheels.turn_left(10)
+    # # wheels.drive(200)
+    # # wheels.turn_right(60)
+    # # wheels.drive(100)
+    # return
+
     wheels.drive(350)
     wheels.turn_right(45)
     wheels.drive(250)
@@ -71,9 +79,14 @@ def step_2_drive_over_to_buildings():
 
     print '**** Step 2 done ****'
 
+# Store which building is burning so we know which building is safe later on 
+burning_building = None
+FIRST = 0; SECOND = 1
+
 # Check which building is the burning one, and dispense the cube in front of it
 def step_3_put_cube_in_burning_building():
     print '**** Step 3: Put firefighter in burning building **'
+    global burning_building
 
     # drive up to the building and leave the cube there
     def dispense_object():
@@ -94,6 +107,7 @@ def step_3_put_cube_in_burning_building():
                 if camera.is_current_object_trackable(should_update=False):
                     print 'Red marker successfully detected'
                     print 'Object is at first building!'
+                    burning_building = FIRST
 
                     dispense_object()
 
@@ -106,6 +120,7 @@ def step_3_put_cube_in_burning_building():
                 raise ObjectIsAtSecondBuilding()
         except ObjectIsAtSecondBuilding:
             print 'Object is at second building!'
+            burning_building = SECOND
 
             # Move to the second building
             wheels.turn_right(45)

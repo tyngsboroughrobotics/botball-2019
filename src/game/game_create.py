@@ -10,6 +10,8 @@ from src.helpers.create import create as _create
 
 # Set up motor/servo
 
+servo.SERVO_MIN_POSITION = 98
+
 guide_motor = motor.motor(port=0, speed=1.0)
 arm_servo = servo.servo(port=3, speed=1.0)
 
@@ -36,6 +38,12 @@ def run():
 
     reset()
 
-    create.drive_forward(150)
+    # This is my testing, just run it to see
+    # what it does because I'm out of time...
+    # please add a meaningful comment :)
+    arm_servo.set_position(0.15)
+    guide_motor.move(motor.FORWARD, 1000)
+    arm_servo.set_position(0.05)
+    guide_motor.move(motor.BACKWARD, 1000)
 
     finish()
