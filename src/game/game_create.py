@@ -37,10 +37,7 @@ def run():
     print '**** Running game ****'
 
     reset()
-
-    # This is my testing, just run it to see
-    # what it does because I'm out of time...
-    # please add a meaningful comment :)
+    
     arm_servo.set_position(0.15)
     guide_motor.move(motor.FORWARD, 1000)
     arm_servo.set_position(0.05)

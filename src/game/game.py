@@ -38,44 +38,31 @@ def finish():
 
     print '**** Done finishing ****'
 
-# Step 1: Grab the firefighter on the edge of the starting block
-def step_1_get_firefighter():
-    print '**** Step 1: Get the firefighter ****'
+# Step 1: Grab the ambulance on the right edge of the starting block
+def step_1_get_ambulance():
+    print '**** Step 1: Get the ambulance ****'
 
-    # From the starting box, turn and face the firefighter cube. Put the plow down and drive it over
-    # to the firefighter cube so the cube is in the plow
+    # From the starting box, turn and face the ambulance. Put the plow down and drive it over
+    # to the ambulance so it's in the plow
+
     arm_servo.set_position(0)
 
-    wheels.turn_left(20) # in degrees
+    wheels.turn_right(20) # in degrees
     
-    arm_servo.set_position(0.35) # 0.4 makes the plow touch the table (don't set it to more than this)
+    arm_servo.set_position(0.32) # 0.4 makes the plow touch the table (don't set it to more than this)
     
-    wheels.drive(100) # in mm
-    wheels.turn_left(70)
+    wheels.drive(280) # in mm
+    wheels.turn_left(145)
 
     print '**** Step 1 done ****'
 
-# Drive over with the cube to the burning buildings
+# Drive over with the ambulance to the burning buildings
 def step_2_drive_over_to_buildings():
     print '**** Step 2: Drive over to buildings'
 
-    arm_servo.set_position(0.35) # TEMPORARY
+    arm_servo.set_position(0.32) # TEMPORARY
 
-    # # "Swoop around" to get the fire truck along the way 
-    # wheels.drive(350)
-    # # wheels.turn_left(10)
-    # # wheels.drive(200)
-    # # wheels.turn_right(60)
-    # # wheels.drive(100)
-    # return
-
-    wheels.drive(350)
-    wheels.turn_right(45)
-    wheels.drive(250)
-    wheels.turn_right(45)
-    wheels.drive(250)
-    wheels.turn_left(105)
-
+    wheels.drive(1350)
 
     print '**** Step 2 done ****'
 
@@ -83,15 +70,19 @@ def step_2_drive_over_to_buildings():
 burning_building = None
 FIRST = 0; SECOND = 1
 
-# Check which building is the burning one, and dispense the cube in front of it
-def step_3_put_cube_in_burning_building():
-    print '**** Step 3: Put firefighter in burning building **'
+# Check which building is the safe one, and dispense the ambulance in front of it
+def step_3_put_ambulance_in_safe_building():
+    print '**** Step 3: Put ambulance in safe building **'
     global burning_building
+
+    arm_servo.set_position(0.32) # TEMPORARY
 
     # drive up to the building and leave the cube there
     def dispense_object():
         wheels.drive(50)
         wheels.drive(100, direction=motor.BACKWARD)
+
+    # Detect which building is burning and which is safe
 
     class ObjectIsAtSecondBuilding(Exception): pass
 
@@ -106,31 +97,37 @@ def step_3_put_cube_in_burning_building():
 
                 if camera.is_current_object_trackable(should_update=False):
                     print 'Red marker successfully detected'
-                    print 'Object is at first building!'
+                    print 'The first building is burning!'
                     burning_building = FIRST
-
-                    dispense_object()
-
-                    # Move to the center black line from the first building
-                    wheels.turn_right(230)
-                    wheels.drive(50)
                 else:
                     raise ObjectIsAtSecondBuilding()
             else:
                 raise ObjectIsAtSecondBuilding()
         except ObjectIsAtSecondBuilding:
-            print 'Object is at second building!'
+            print 'The second buildng is burning!'
             burning_building = SECOND
 
-            # Move to the second building
-            wheels.turn_right(45)
-            wheels.drive(250)
+    # Place the ambulance in the safe building
 
-            dispense_object()
+    if burning_building == FIRST:
+        # The second building is the safe one
+        wheels.turn_right(45)
+        wheels.drive(250)
 
-            # Move to the center black line from the second building 
-            wheels.drive(100, direction=motor.BACKWARD)
-            wheels.turn_right(130)
+        dispense_object()
+
+        # Move to the center black line from the second building 
+        wheels.drive(100, direction=motor.BACKWARD)
+        wheels.turn_right(120)   
+        wheels.drive(100)
+        wheels.turn_right(45)     
+    else:
+        # The first building is the safe one
+        dispense_object()
+
+        # Move to the center black line from the first building
+        wheels.turn_right(245)
+        wheels.drive(50)
 
     print '**** Step 3 done ****'
 
@@ -139,11 +136,11 @@ def run():
 
     reset()
  
-    step_1_get_firefighter()
-    step_2_drive_over_to_buildings()
-    step_3_put_cube_in_burning_building()
-    w.msleep(0) # TODO: Wait for the Create to get out of the way before continuing
-    # TODO: Step 4
+    # step_1_get_ambulance()
+    # step_2_drive_over_to_buildings()
+    step_3_put_ambulance_in_safe_building()
+    # w.msleep(0) # TODO: Wait for the Create to get out of the way before continuing
+    # # TODO: Step 4
 
     finish()
 
