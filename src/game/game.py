@@ -52,7 +52,7 @@ def step_1_get_ambulance():
     arm_servo.set_position(0.32) # 0.4 makes the plow touch the table (don't set it to more than this)
     
     wheels.drive(280) # in mm
-    wheels.turn_left(145)
+    wheels.turn_left(150)
 
     print '**** Step 1 done ****'
 
@@ -76,11 +76,6 @@ def step_3_put_ambulance_in_safe_building():
     global burning_building
 
     arm_servo.set_position(0.32) # TEMPORARY
-
-    # drive up to the building and leave the cube there
-    def dispense_object():
-        wheels.drive(50)
-        wheels.drive(100, direction=motor.BACKWARD)
 
     # Detect which building is burning and which is safe
 
@@ -110,26 +105,38 @@ def step_3_put_ambulance_in_safe_building():
     # Place the ambulance in the safe building
 
     if burning_building == FIRST:
-        # The second building is the safe one
+        # The second building is the safe one; drive up to it 
+        # before dispensing
         wheels.turn_right(45)
         wheels.drive(250)
-
-        dispense_object()
-
-        # Move to the center black line from the second building 
-        wheels.drive(100, direction=motor.BACKWARD)
-        wheels.turn_right(120)   
-        wheels.drive(100)
-        wheels.turn_right(45)     
-    else:
-        # The first building is the safe one
-        dispense_object()
-
-        # Move to the center black line from the first building
-        wheels.turn_right(245)
-        wheels.drive(50)
+        
+    # drive up to the building and dispense the ambulance there
+    wheels.drive(50)
+    wheels.drive(100, direction=motor.BACKWARD)
 
     print '**** Step 3 done ****'
+
+def step_4_pickup_firetruck():
+    print '**** Step 4: Pickup the firetruck ****'
+
+    arm_servo.set_position(0.32) # TEMPORARY
+
+    if burning_building == FIRST:
+        # Turn around and grab the firetruck cube
+        wheels.drive(530, direction=motor.BACKWARD)
+        wheels.turn_right(135)
+        wheels.drive(240)
+
+        # Drive up to the building
+        wheels.turn_left(200)
+        wheels.drive(530)
+
+        # Move to the black line and wait
+        pass
+    else:
+        pass
+
+    print '**** Step 4 done ****'
 
 def run():
     print '**** Running game ****'
@@ -138,9 +145,10 @@ def run():
  
     # step_1_get_ambulance()
     # step_2_drive_over_to_buildings()
-    step_3_put_ambulance_in_safe_building()
-    # w.msleep(0) # TODO: Wait for the Create to get out of the way before continuing
-    # # TODO: Step 4
+    # step_3_put_ambulance_in_safe_building()
+    global burning_building
+    burning_building = FIRST 
+    step_4_pickup_firetruck()
 
     finish()
 
