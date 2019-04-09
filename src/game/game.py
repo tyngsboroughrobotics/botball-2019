@@ -47,12 +47,12 @@ def step_1_get_ambulance():
 
     arm_servo.set_position(0)
 
-    wheels.turn_right(20) # in degrees
+    wheels.turn_right(7.5) # in degrees
     
     arm_servo.set_position(0.32) # 0.4 makes the plow touch the table (don't set it to more than this)
     
     wheels.drive(280) # in mm
-    wheels.turn_left(150)
+    wheels.turn_left(140)
 
     print '**** Step 1 done ****'
 
@@ -129,12 +129,22 @@ def step_4_pickup_firetruck():
 
         # Drive up to the building
         wheels.turn_left(200)
-        wheels.drive(530)
+        wheels.drive(500)
 
         # Move to the black line and wait
         pass
     else:
-        pass
+        # Turn around and grab the firetruck cube
+        wheels.turn_left(245)
+        wheels.drive(380)
+
+        # Drive up to the building
+        wheels.turn_left(242)
+        wheels.drive(700)
+        wheels.drive(350, direction=motor.BACKWARD)
+
+        # Turn around to the black line and wait
+        wheels.turn_right(180)
 
     print '**** Step 4 done ****'
 
@@ -143,11 +153,11 @@ def run():
 
     reset()
  
-    # step_1_get_ambulance()
-    # step_2_drive_over_to_buildings()
-    # step_3_put_ambulance_in_safe_building()
-    global burning_building
-    burning_building = FIRST 
+    step_1_get_ambulance()
+    step_2_drive_over_to_buildings()
+    step_3_put_ambulance_in_safe_building()
+    # global burning_building
+    # burning_building = FIRST 
     step_4_pickup_firetruck()
 
     finish()
