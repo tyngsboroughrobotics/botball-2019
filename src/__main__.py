@@ -12,5 +12,5 @@ from helpers.functions import print_botball_logo
 print_botball_logo()
 
 # choose `game` or `game_create` to run
-from game import game as game
+from game import game_create as game
 game.run()
