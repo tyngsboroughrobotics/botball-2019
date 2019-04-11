@@ -1,0 +1,9 @@
+{
+    "C_Cpp.default.includePath": [
+        "*/include",
+        "/usr/include"
+    ],
+    "files.eol": "\n",
+    "files.insertFinalNewline": true,
+    "python.pythonPath": "/usr/local/bin/python3"
+}

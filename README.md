@@ -1,44 +1,55 @@
 # THS Robotics Botball 2019 Codebase
 
-This repository contains the code for the Tyngsboro High School Robotics' Demobot and Create
-robots as part of the Botball 2019 competition.
+This repository contains the code for the Tyngsboro High School Robotics' Demobot and Create robots as part of the Botball 2019 competition.
 
-The project is written in Python and uses [wallapy](https://gitlab.com/Almighty7/wallapy) to
-interact with the  `libwallaby` C library directly from Python. As such, the API is generally
-the same as the C version.
-
-The project also includes some build scripts to make it easy to install and run the project
-on a Wallaby controller. To get started, read below.
+The project is written in C++ and uses the `libwallaby` library to interact with the controller. You can download `libwallaby` [here](https://github.com/kipr/libwallaby). We recommend using [VSCode](https://code.visualstudio.com/) to interact with the codebase, but you may use any IDE you wish.
 
 ## Getting started
 
-The build scripts included are written for Windows with [OpenSSH](https://winscp.net/eng/docs/guide_windows_openssh_server)
-installed. To install and run `botball-2019` on a Wallaby controller, plug in the Wallaby via
-USB and ensure that you can SSH into it:
+### Adding `libwallaby` to your system
+
+We recommended using the codebase on your local machine instead of the KISS Web IDE included on the controller. As such, you will need the `libwallaby` header files so your local IDE can provide autocompletion, etc.
+
+Download `libwallaby` [here](https://github.com/kipr/libwallaby) and move the contents of the `include` folder into the `/usr/include` folder on your machine. (You may need to create this folder if it doesn't already exist, eg. macOS.) Thus, your `/usr/include` folder should look like this:
 
 ```
-ssh root@192.168.124.1
+- usr
+  - include
+    - kipr
+      - botball.h
+    - wallaby
+      - wallaby.h
+      - (lots more files...)
 ```
 
-You should be greeted with `root@pepper:~#`.
+### Using the build scripts
 
-### Running the build scripts
+This project also includes some build scripts to make it easy to compile and run the project on a Wallaby controller from a local development machine. The build scripts included are written for a Bash shell and assume that `ssh`, `scp`, and `git` are installed. To run the project on a Wallaby controller, plug in the Wallaby via USB and ensure that you can SSH into it:
 
-Since `botball-2019` is written in Python, no compilation is needed to run the code. The
-Wallaby controller has Python 2.7 pre-installed, so no additional setup should be required.
+```shell
+$ ssh root@192.168.124.1
+```
 
-There are three build scripts included:
+> **Note:** The IP address for the controller over *WiFi* is `192.168.125.1`, over USB it's `192.168.124.1`. You can substitute the IP addresses in all of the commands/build scripts if you really need to connect over WiFi.
 
- - `init-cp.bat`: Run this script the first time you install `botball-2019` on the Wallaby
-   or whenever you make a code change but only want to copy files and not also run them.
-   Removes all contents of the code folder (`/home/root/Documents/KISS/src/ths-botball-2019/`)
-   and copies the contents of `src/` into it.
- - `build-run.bat`: Runs the code on the Wallaby and sends output over SSH. Assumes that
-   the code already exists on the Wallaby in the code folder specified above.
- - `deploy.bat`: A combination of the other two build scripts, useful when you make code
-   changes that you immediately want to transfer to the Wallaby and run.
+You should be greeted with `root@pepper:~#`. If not, check to make sure the controller is connected as an "Ethernet gadget"; you may need to do some additional setup for this on Windows.
+
+Currently this project includes four build scripts:
+
+ - `copy.sh`: Copies the codebase onto the controller.
+ - `compile.sh`: Compiles the codebase **on the controller** (NOT on your local machine) into `botball_user_program`.
+ - `run.sh`: Runs `botball_user_program` on the controller.
+ - `deploy.sh`: Performs all of the above build scripts.
+
+## Contributing
+
+We open-sourced our Botball project in an effort to make it easier for other teams to get started with writing their own. We welcome and encourage contributions — if you've found a bug or want to improve something, please submit a pull request!
+
+### Primary authors:
+
+- Wilson Gramer ([@Wilsonator5000](https://github.com/Wilsonator5000))
+- John Redman ([@redmanjohn11](https://github.com/redmanjohn11))
 
 ## Donate to THS Robotics
 
-If you like what we're doing, please donate to our [GoFundMe page](https://www.gofundme.com/tyngsborough-robotics).
-We appreciate your support!
+If you like what we're doing, please donate to our [GoFundMe page](https://www.gofundme.com/tyngsborough-robotics). We appreciate your support!

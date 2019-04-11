@@ -1,0 +1,3 @@
+echo "Compiling project..."
+
+# TODO: ...
