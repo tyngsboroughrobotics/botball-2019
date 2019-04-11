@@ -1,4 +1,4 @@
-echo Create the necessary folders before running any other build script.
+echo Create the necessary folders before running any other build script
 
 ssh -t root@192.168.124.1 "rm -rf /home/root/Documents/KISS/Default\ User/ths-botball-2019/ && mkdir -p /home/root/Documents/KISS/Default\ User/ths-botball-2019/src/ && mkdir -p /home/root/Documents/KISS/Default\ User/ths-botball-2019/data/ && mkdir -p /home/root/Documents/KISS/Default\ User/ths-botball-2019/bin/"
 
