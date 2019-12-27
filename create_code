@@ -1,0 +1,464 @@
+#include <kipr/botball.h>
+#define medium 100
+#define fast 200
+#define slow 25
+#define between_analog 1500
+#define black 2000
+#define white 2100
+#define top_hat 0
+#define arm 2
+#define arm_up 1550
+#define arm_down 600
+#define arm_between 815
+#define arm_between_up 840
+#define arm_object 1400
+#define claw 1
+#define claw_open 450
+#define claw_close 1175
+#define touch_sensor1 0
+#define touch_sensor2 1
+#define untouched 0
+#define light 5
+#define sonar 1
+#define close 1500
+
+void white_board_backwards();
+void white_board_forward();
+void black_line_forward();
+void black_line_backwards();
+void follow_line_backwards_white();
+void follow_line_backwards_black();
+void follow_line_forward_untouched();
+void follow_line_untouched_backwards();
+void drive_forward_time();
+void drive_backwards_time();
+void drive_forward_untouched();
+void drive_backwards_untouched();
+void turn_right();
+void turn_left();
+void turn_right_backwards();
+void turn_left_backwards();
+void turn_right_fast();
+void turn_left_fast();
+void turn_white_left();
+void turn_white_right();
+void turn_black_left();
+void turn_black_right();
+void create_stay();
+void follow_line_backwards_cliff();
+void starting_movements();
+void left_powerline();
+void right_powerline();
+void setup_right_skyscraper();
+void right_skyscraper_object();
+void right_skyscraper_no_object();
+void setup_left_skyscraper();
+void left_skyscraper_object();
+void left_skyscraper_no_object();
+
+int main()
+{
+    create_connect(); //Turn on
+    enable_servos();
+    starting_movements();
+    left_powerline();
+    right_powerline();
+    setup_right_skyscraper();
+    if(analog(sonar) < close) //There is not an object there
+    {
+        right_skyscraper_no_object();
+        setup_left_skyscraper();
+        if(analog(sonar) < close) //There is not an onject there
+        {
+            left_skyscraper_no_object();
+        }
+        else if(analog(sonar) > close) //There is an object there
+        {
+            left_skyscraper_object();
+        }
+    }
+    else if(analog(sonar) > close) //There is an object there
+    {
+        right_skyscraper_object();
+        setup_left_skyscraper();
+        if(analog(sonar) < close) //There is not an object there
+        {
+            left_skyscraper_no_object();
+        }
+        else if(analog(sonar) > close) //There is an object there
+        {
+            left_skyscraper_object();
+        }
+    }
+    disable_servos();
+    create_disconnect(); //Turn off
+    return 0;
+}
+
+void white_board_backwards()
+{
+    while(analog(top_hat) < between_analog)
+    {
+        create_drive_direct(-medium,-medium);
+    }
+}
+
+void white_board_forward()
+{
+    while(analog(top_hat) < between_analog)
+    {
+        create_drive_direct(medium,medium);
+    }
+}
+
+void black_line_forward()
+{
+    while(analog(top_hat) >	between_analog)
+    {
+        create_drive_direct(medium,medium);
+    }
+}
+
+void black_line_backwards()
+{
+    while(analog(top_hat) > between_analog)
+    {
+        create_drive_direct(-medium,-medium);
+    }
+}
+
+void follow_line_backwards_white()
+{
+    while(get_create_rcliff_amt() > white)
+    {
+        if(analog(top_hat) > between_analog)
+        {
+            create_drive_direct(-slow,-medium);
+        }
+        else
+        {
+            create_drive_direct(-medium,-slow);
+        }
+    }
+}
+
+void follow_line_backwards_black()
+{
+    while(get_create_rcliff_amt() < white)
+    {
+        if(analog(top_hat) > between_analog)
+        {
+            create_drive_direct(-slow,-medium);
+        }
+        else
+        {
+            create_drive_direct(-medium,-slow);
+        }
+    }
+}
+
+void follow_line_forward_untouched(int speed_left,int speed_right)
+{
+    while(get_create_lbump() == 0 && get_create_rbump() == 0)
+    {
+        if(get_create_rfcliff_amt() > black)
+        {
+            create_drive_direct(speed_left,speed_right);
+        }
+        else
+        {
+            create_drive_direct(speed_right,speed_left);
+        }
+    }
+}
+
+void follow_line_untouched_backwards(int speed_left, int speed_right)
+{
+    while(digital(touch_sensor1) == untouched && digital(touch_sensor2) == untouched)
+    {
+        if(analog(top_hat) > between_analog)
+        {
+            create_drive_direct(-speed_left,-speed_right);
+        }
+        else
+        {
+            create_drive_direct(-speed_right,-speed_left);
+        }
+    }
+}
+
+void drive_forward_time(int speed,int time)
+{
+    create_drive_direct(speed,speed);
+    msleep(time);
+}
+
+void drive_backwards_time(int speed,int time)
+{
+    create_drive_direct(-speed,-speed);
+    msleep(time);
+}
+
+void drive_forward_untouched(int speed)
+{
+    while(get_create_lbump() == untouched && get_create_rbump() == untouched)
+    {
+       create_drive_direct(speed,speed);
+    }
+}
+
+void drive_backwards_untouched(int speed)
+{
+    while(digital(touch_sensor1) == untouched && digital(touch_sensor2) == untouched)
+    {
+       create_drive_direct(-speed,-speed);
+    }
+}
+
+void turn_right(int angle,int speed)
+{
+    set_create_total_angle(0);
+    while(get_create_total_angle() > -angle)
+    {
+        create_drive_direct(speed,0);
+    }
+}
+    
+void turn_left(int angle,int speed)
+{
+    set_create_total_angle(0);
+    while(get_create_total_angle() < angle)
+    {
+        create_drive_direct(0,speed);
+    }
+}   
+ 
+void turn_right_backwards(int angle,int speed)
+{
+    set_create_total_angle(0);
+    while(get_create_total_angle() > -angle)
+    {
+        create_drive_direct(0,-speed);
+    }
+    
+}
+
+void turn_left_backwards(int angle,int speed)
+{
+    set_create_total_angle(0);
+    while(get_create_total_angle() < angle)
+    {
+        create_drive_direct(-speed,0);
+    }
+}
+
+void turn_right_fast(int angle,int speed)
+{
+    set_create_total_angle(0);
+    while(get_create_total_angle() > -angle)
+    {
+        create_drive_direct(speed,-speed);
+    }
+}    
+
+void turn_left_fast(int angle,int speed)
+{
+    set_create_total_angle(0);
+    while(get_create_total_angle() < angle)
+    {
+        create_drive_direct(-speed,speed);
+    }
+}  
+
+void turn_white_left(int left_speed,int right_speed)
+{
+    while(get_create_lcliff_amt() > white)
+    {
+        create_drive_direct(left_speed,right_speed);
+    }
+}
+
+void turn_white_right(int left_speed,int right_speed)
+{
+    while(get_create_rcliff_amt() > white)
+    {
+        create_drive_direct(left_speed,right_speed);
+    }
+}
+
+void turn_black_left(int left_speed,int right_speed)
+{
+    while(get_create_lcliff_amt() < black)
+    {
+        create_drive_direct(left_speed,right_speed);
+    }
+}
+
+void turn_black_right(int left_speed,int right_speed)
+{
+    while(get_create_rcliff_amt() < black)
+    {
+        create_drive_direct(left_speed,right_speed);
+    }
+}
+
+void create_stay(int time)
+{
+    create_stop();
+    msleep(time);
+}
+
+void follow_line_backwards_cliff(int l_speed,int r_speed)
+{
+    while(get_create_rfcliff_amt() > white)
+    {
+        if(analog(top_hat) > between_analog)
+        {
+            create_drive_direct(-l_speed,-r_speed);
+        }
+        else
+        {
+            create_drive_direct(-r_speed,-l_speed);
+        }
+    }
+}
+
+void starting_movements()
+{
+    set_servo_position(arm,arm_up);
+    create_stay(500);
+    drive_forward_untouched(fast); //Drop off cubes
+    follow_line_untouched_backwards(fast,medium);
+    drive_forward_time(fast,1000);
+    create_stay(100);
+}
+
+void left_powerline()
+{
+    turn_right_fast(150,fast);
+    follow_line_untouched_backwards(fast,medium);
+    create_stay(250);
+    drive_forward_time(fast,2000); //Setup for powerline left
+    set_servo_position(arm,arm_between);
+    set_servo_position(claw,claw_close);
+    create_stay(250);
+    turn_right_fast(1,medium);
+    create_stay(250);
+    drive_backwards_time(fast,1150); //Powerline left connection
+    turn_left_backwards(25,medium);
+    set_servo_position(arm,arm_between_up);
+    create_stay(250);
+    drive_backwards_time(medium,400);
+    turn_left_backwards(25,medium);
+    set_servo_position(arm,arm_between);
+    turn_right(30,medium);
+}
+
+void right_powerline()
+{
+    drive_forward_time(fast,1250); //Setup for powerline right
+    create_stay(100);
+    set_servo_position(arm,arm_up);
+    follow_line_untouched_backwards(fast,medium);
+    create_stay(250);
+    drive_forward_time(fast,2000); //Powerline right connection
+    turn_right_backwards(19,medium);
+    set_servo_position(arm,arm_between);
+    create_stay(250);
+    drive_backwards_time(fast,1100);
+    turn_right_backwards(20,medium);
+    set_servo_position(arm,arm_between_up);
+    create_stay(250);
+    drive_backwards_time(medium,275);
+    turn_right_backwards(15,medium);
+    set_servo_position(arm,arm_between);
+    turn_left(40,medium);
+    drive_forward_time(fast,1050);
+    set_servo_position(arm,arm_up);
+    create_stay(100);
+    turn_left_fast(105,fast);
+    drive_backwards_time(fast,900);
+    create_stay(100); 
+}
+    
+void setup_right_skyscraper()
+{
+    turn_white_left(medium,0); //Setup for right skyscraper
+    turn_white_right(0,medium);
+    turn_left_fast(105,medium);
+    create_stay(250);
+    drive_backwards_time(fast,750);
+    set_servo_position(claw,claw_open);
+    turn_right_backwards(110,medium);
+    create_stay(500);
+}
+
+void right_skyscraper_object()
+{
+    set_servo_position(arm,arm_object); //Pickup object
+    create_stay(750);
+    set_servo_position(claw,claw_close);
+    create_stay(500);
+    set_servo_position(arm,arm_up);
+    create_stay(250);
+    drive_forward_time(200,fast); //Setup to put object down
+    turn_white_left(medium,0);
+    turn_white_right(0,medium);
+    create_stay(250);
+    drive_forward_untouched(fast);
+    turn_right_backwards(100,medium);
+    drive_backwards_time(fast,400);
+    turn_white_right(0,medium);
+    turn_white_left(medium,0);
+    white_board_backwards();
+    drive_forward_time(fast,750);
+    turn_right_fast(5,medium);
+    set_servo_position(arm,arm_down); //Put down object
+    create_stay(500);
+    set_servo_position(claw,claw_open);
+    create_stay(250);
+    set_servo_position(arm,arm_up);
+    create_stay(500);
+    turn_left_fast(5,medium);
+    create_stay(250);
+    white_board_forward();
+}
+
+void right_skyscraper_no_object()
+{
+    set_servo_position(claw,claw_close); //Gets to the same spot as the ending of when an object is sensed
+    drive_forward_time(200,fast);
+    turn_white_left(medium,0);
+    turn_white_right(0,medium);
+    create_stay(250);
+    drive_forward_untouched(fast);
+    turn_right_backwards(100,medium);
+    drive_backwards_time(fast,500);
+    turn_white_right(0,medium); 
+    turn_white_left(medium,0);
+}
+
+void setup_left_skyscraper()
+{
+    drive_forward_time(fast,2500); //Setup for left skyscraper
+    white_board_forward();
+    drive_backwards_time(fast,250);
+    turn_white_right(0,-medium); 
+    turn_white_left(-medium,0);
+    create_stay(100);
+    turn_left_fast(medium,94);
+    drive_backwards_time(fast,1000);
+    white_board_backwards();
+    black_line_backwards();
+    drive_backwards_time(fast,1450);
+}
+
+void left_skyscraper_object()
+{
+    printf("Still coding/n");    
+}
+
+void left_skyscraper_no_object()
+{
+    printf("still coding/n");
+}
